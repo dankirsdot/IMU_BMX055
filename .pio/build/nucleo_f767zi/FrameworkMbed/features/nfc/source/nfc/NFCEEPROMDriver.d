@@ -1,0 +1,19 @@
+.pio/build/nucleo_f767zi/FrameworkMbed/features/nfc/source/nfc/NFCEEPROMDriver.o: \
+ /home/dankirsdot/.platformio/packages/framework-mbed/features/nfc/source/nfc/NFCEEPROMDriver.cpp \
+ .pio/build/nucleo_f767zi/mbed_config.h \
+ /home/dankirsdot/.platformio/packages/framework-mbed/features/nfc/nfc/NFCEEPROMDriver.h \
+ /home/dankirsdot/.platformio/packages/framework-mbed/events/EventQueue.h \
+ /home/dankirsdot/.platformio/packages/framework-mbed/events/equeue.h \
+ /home/dankirsdot/.platformio/packages/framework-mbed/events/internal/equeue_platform.h \
+ /home/dankirsdot/.platformio/packages/framework-mbed/rtos/source/TARGET_CORTEX/rtx5/Include/cmsis_os2.h \
+ /home/dankirsdot/.platformio/packages/framework-mbed/rtos/mbed_rtos_storage.h \
+ /home/dankirsdot/.platformio/packages/framework-mbed/rtos/source/TARGET_CORTEX/mbed_rtx_storage.h \
+ /home/dankirsdot/.platformio/packages/framework-mbed/rtos/source/TARGET_CORTEX/rtx5/RTX/Include/rtx_os.h \
+ /home/dankirsdot/.platformio/packages/framework-mbed/rtos/source/TARGET_CORTEX/mbed_rtx_conf.h \
+ /home/dankirsdot/.platformio/packages/framework-mbed/targets/TARGET_STM/mbed_rtx.h \
+ /home/dankirsdot/.platformio/packages/framework-mbed/platform/Callback.h \
+ /home/dankirsdot/.platformio/packages/framework-mbed/platform/mbed_assert.h \
+ /home/dankirsdot/.platformio/packages/framework-mbed/platform/mbed_toolchain.h \
+ /home/dankirsdot/.platformio/packages/framework-mbed/platform/mbed_preprocessor.h \
+ /home/dankirsdot/.platformio/packages/framework-mbed/platform/NonCopyable.h \
+ /home/dankirsdot/.platformio/packages/framework-mbed/platform/mbed_debug.h

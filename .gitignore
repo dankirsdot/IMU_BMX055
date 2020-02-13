@@ -1,5 +1,5 @@
-.pio
-.vscode/.browse.c_cpp.db*
-.vscode/c_cpp_properties.json
-.vscode/launch.json
-.vscode/ipch
+/client/.pio
+/client/.vscode/.browse.c_cpp.db*
+/client/.vscode/c_cpp_properties.json
+/client/.vscode/launch.json
+/client/.vscode/ipch
