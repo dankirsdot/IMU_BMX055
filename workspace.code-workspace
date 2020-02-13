@@ -1,0 +1,15 @@
+{
+	"folders": [
+		{
+			"path": "client"
+		},
+		{
+			"path": "server"
+		}
+	],
+	"settings": {
+		"files.associations": {
+			"functional": "cpp"
+		}
+	}
+}
