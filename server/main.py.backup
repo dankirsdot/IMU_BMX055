@@ -1,25 +1,37 @@
 import socket
 import numpy as np
 
-s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+SERVER_ADDRESS = ("192.168.1.72", 50000)
+socket.bind(SERVER_ADDRESS)
+socket.listen()
 
-s.bind(("192.168.1.72", 50000))
+conn, address = socket.accept()
 
-s.listen(1)
+length = 10
+#whole_array = np.empty((0, length), dtype=np.int16)
+  
+while True:
+    try:
+        mode = np.random.randint(0, 5)
+        print('Mode', mode)
+        # Send the data to client
+        conn.sendall(mode.to_bytes(2, 'little'))
+        print("Package sended!")
 
-conn, addr = s.accept()
+        # Recieve the data
+        data = conn.recv(1024)
+        while not data:
+            data = conn.recv(1024)
+        # Parse
+        if not data:
+            print('No data!')
+        #numbers = np.frombuffer(data, dtype=np.int16)
+        print(str(data))
 
-while 1:
-    data = conn.recv(1024)
+        #whole_array = np.append(whole_array, [data], axis=0)
 
-    numbers = np.frombuffer(data, dtype=np.int16)
-    print(numbers)
-
-    conn.sendall(data)
-
-    if not data:
+    except (KeyboardInterrupt, SystemExit):
+        conn.close()
+        #np.savetxt("result.csv", whole_array, delimiter=",")
         break
-
-    conn.sendall(data)
-
-conn.close()

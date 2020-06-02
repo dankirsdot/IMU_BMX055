@@ -1,107 +1,120 @@
 #include <mbed.h>
+#include <rtos.h>
 #include <EthernetInterface.h>
-#include <Timer.h>
 
-// Initialize network interface
-EthernetInterface eth;
+#include <error.h>
 
 #define IP "192.168.1.177"
 #define GATEWAY "192.168.1.1"
 #define MASK "255.255.255.0"
 
-// Initialize timer
-Timer t;
+#define SERVER_IP "192.168.1.72"
+#define SERVER_PORT 50000
 
-float main_function(int16_t *result, float *data)
+EthernetInterface eth;
+
+Thread thread;
+
+// Thread function
+void callback()
 {
-    for(int i = 0; i < 10; i++)
-    {
-        data[i] = i;
-    }
-    wait(10);
+    nsapi_size_or_error_t SocketStatus;
 
-    
-    for(int i = 0; i < 10; i++)
-    {
-        result[i] = 9-i;
-    }
-
-    return 0;
-}
-
-int main(int, char **)
-{
-    nsapi_size_or_error_t  status;
-
-    // Set up static IP
-    eth.disconnect();
-    status = eth.set_network(IP, MASK, GATEWAY);
-    printf("set IP status: %i \r\n", status);
-
-    // Start the network interface
-    status = eth.connect();
-    printf("Ethernet connection status: %i \r\n", status);
-
-    // Create a socket
-    TCPSocket socket;
-    socket.open(&eth);
+    TCPSocket socket2;
+    SocketStatus = socket2.open(&eth);
+    check_nsapi_error("Socket 2 initialization status", SocketStatus, true);
 
     // Connect
-    status = socket.connect("192.168.1.72", 50000);
-    printf("Socket connection status: %i \r\n", status);
+    SocketStatus = socket2.connect(SERVER_IP, SERVER_PORT);
+    check_nsapi_error("Socket 2 connection status", SocketStatus, true);
+    printf("Socket 2 connection is established!\n\n");
+}
 
-    // Show the network address
+
+void establish_ethernet_connection(EthernetInterface eth)
+{
+    nsapi_size_or_error_t EthernetStatus;
+
+    eth.disconnect();
+    EthernetStatus = eth.set_network(IP, MASK, GATEWAY);
+    check_nsapi_error("Set IP status", EthernetStatus, true);
+
+    EthernetStatus = eth.connect();
+    check_nsapi_error("Ethernet connection status", EthernetStatus, true);
+
     const char *ip = eth.get_ip_address();
     const char *mac = eth.get_mac_address();
     printf("IP address is: %s\n", ip ? ip : "No IP");
     printf("MAC address is: %s\n", mac ? mac : "No MAC");
-    printf("The connection is established!\n\n\n");
+    printf("The Ethernet connection is established!\n\n");
+
+    // Should we return something?
+}
 
 
+enum operation_modes
+{
+    SET_SETTINGS        =     0, /*!< Settings mode */
+    ESTIMATE_PARAMETERS =     1, /*!< Estimate parameters */
+    INITIALIZE_POSITION =     2, /*!< Move to the zero position */
+    RUN_EXPERIMENT      =     3, /*!< Run the experiment */
+};
 
-    float buffer[10];
-    int16_t result[10];
 
-    while(true)
-    {    
+int main(int, char **)
+{
+    // Initialize network interface
+    establish_ethernet_connection(eth);
+
+    nsapi_size_or_error_t SocketStatus;
+
+    // Create a socket
+    TCPSocket socket;
+    SocketStatus = socket.open(&eth);
+    check_nsapi_error("Socket initialization status", SocketStatus, true);
+
+    // Connect
+    SocketStatus = socket.connect(SERVER_IP, SERVER_PORT);
+    check_nsapi_error("Socket connection status", SocketStatus, true);
+    printf("Socket connection is established!\n\n");
+
+    // Start the second socket
+    thread.start(callback);
+
+    ThisThread::sleep_for(5e+3); // wait 5 seconds
+
+    int mode = 0;
+    const char *result = "OK!";
+
+    while (true)
+    {
         // Receive data from the server
-        status = socket.recv(buffer, sizeof(buffer));
-        printf("Bytes recieved: %d\n", status);
-        for(int i = 0; i < 10; i++)
+        SocketStatus = socket.recv(&mode, sizeof(mode));
+        check_nsapi_error("Bytes recieved", SocketStatus, false);
+
+        printf("Mode is %d.\n", mode);
+        switch (mode)
         {
-            printf("%.3f ", buffer[i]);
+            case SET_SETTINGS:
+                printf("The settings function!\n");
+                break;
+            case ESTIMATE_PARAMETERS:
+                printf("The estimation function!\n");
+                break;
+            case INITIALIZE_POSITION:
+                printf("The initialization function!\n");
+                break;
+            case RUN_EXPERIMENT:
+                printf("The experiment thread!\n");
+                break;
+            default:
+                printf("Wrong mode %d.\n", mode);
         }
 
-        // Check recieved package and run the main_function
-        if(status == sizeof(buffer))
-        {
-            main_function(result, buffer);
-
-            printf("\n\n\nMain function performed!\n");
-            for(int i = 0; i < 10; i++)
-            {
-                printf("%hi ", result[i]);
-            }
-            printf("\nDone!\n\n\n");
-        }
-        else
-        {
-            printf("Error! Bytes recieved (%d) != Size of buffer (%d)\n", status, sizeof(buffer));
-        }
-
+        ThisThread::sleep_for(5e+3); // wait 5 seconds
 
         // Send the result to the server
-        // t.start();
-        status = socket.send(result, sizeof(result));
-        // t.stop();
-        // printf("The time taken was %f seconds\n", t.read());
-        if(status != sizeof(result))
-        {
-            printf("\nOnly %d bytes of the package (%d bytes) was sended!\n\n", status, sizeof(result));
-        }
+        SocketStatus = socket.send(result, sizeof(result));
+        check_nsapi_error("Bytes sended", SocketStatus, false);
     }
-
-    // Close the socket
-    // status = socket.close();
-    // printf("Socket closing status: %i \r\n", status);
 }
